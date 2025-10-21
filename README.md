@@ -69,3 +69,12 @@ node dist/server.js
 
 - JSON-body support: voeg `app.use(express.json())` toe als je JSON wilt accepteren.
 - MongoDB-verbinding: hergebruik de MongoClient in productie in plaats van connect/close per request.
+
+## Docker
+
+Build de afbeelding (image) en start de services met Docker Compose:
+
+```bash
+docker build -t server:1.0 .
+docker compose -f mongodb.yaml up -d
+```

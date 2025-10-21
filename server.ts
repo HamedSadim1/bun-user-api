@@ -9,6 +9,8 @@ const PORT = 5050;
 
 // Middleware om formulier-encoded bodies (application/x-www-form-urlencoded) te parsen
 app.use(express.urlencoded({ extended: true }));
+// Middleware om JSON bodies te parsen (voor POST requests met application/json)
+app.use(express.json());
 // Serveer statische bestanden (index.html, style.css, etc.) vanuit de `public` map
 app.use(express.static("public"));
 
