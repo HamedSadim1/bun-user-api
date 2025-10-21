@@ -1,0 +1,48 @@
+# Definieer alle services die in Docker containers zullen draaien
+services:
+  # MongoDB Database Service
+  mongo:
+    image: mongo # Gebruik de officiële MongoDB image van Docker Hub
+    ports:
+      - "27017:27017" # Koppel poort 27017 op host aan poort 27017 in container (host:container)
+    environment:
+      # Stel de root gebruikersnaam en wachtwoord in voor MongoDB
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: qwerty
+    networks:
+      - app-network # Verbind met het gedeelde netwerk zodat andere services toegang hebben
+
+  # Mongo Express - Web-gebaseerde MongoDB beheer interface
+  mongo-express:
+    image: mongo-express # Gebruik de officiële Mongo Express image
+    ports:
+      - "8081:8081" # Toegang tot de web UI via http://localhost:8081
+    environment:
+      # Inloggegevens om te authenticeren met MongoDB
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: qwerty
+      # Verbindings URL - gebruikt servicenaam "mongo" in plaats van localhost
+      ME_CONFIG_MONGODB_URL: "mongodb://admin:qwerty@mongo:27017"
+    depends_on:
+      - mongo # Zorg ervoor dat MongoDB start voor Mongo Express
+    networks:
+      - app-network # Verbind met hetzelfde netwerk als MongoDB
+
+  # Jouw Bun TypeScript Applicatie Service
+  app:
+    build: . # Bouw de image met behulp van de Dockerfile in de huidige map
+    ports:
+      - "5050:5050" # Maak de applicatie beschikbaar op http://localhost:5050
+    environment:
+      # MongoDB verbindings URL doorgegeven als omgevingsvariabele aan de app
+      # Gebruikt "mongo" (servicenaam) voor DNS resolutie binnen het Docker netwerk
+      MONGO_URL: "mongodb://admin:qwerty@mongo:27017"
+    depends_on:
+      - mongo # Zorg ervoor dat MongoDB start voor de applicatie
+    networks:
+      - app-network # Verbind met hetzelfde netwerk als MongoDB
+
+# Definieer aangepaste netwerken voor communicatie tussen containers
+networks:
+  app-network:
+    driver: bridge # Gebruik bridge driver voor communicatie tussen containers op dezelfde host
