@@ -1,69 +1,101 @@
-// Importeer Express en maak een app-instance
+import cors from "cors";
 import express from "express";
+import helmet from "helmet";
+import { MongoClient } from "mongodb";
+import pino from "pino";
+import { z } from "zod";
 
 const app = express();
-
-// MongoDB client importeren (native driver)
-import { MongoClient } from "mongodb";
-
-// Poort waarop de server luistert
 const PORT = 5050;
 
-// Middleware om formulier-encoded bodies (application/x-www-form-urlencoded) te parsen
+// Pino logger voor gestructureerde logging
+const logger = pino(
+  process.env.NODE_ENV === "production"
+    ? {}
+    : {
+        transport: {
+          target: "pino-pretty",
+          options: { colorize: true },
+        },
+      },
+);
+
+// Security headers (XSS, clickjacking, etc.)
+app.use(helmet());
+
+// CORS voor cross-origin requests
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST"],
+  }),
+);
+
+// Middleware voor body parsing
 app.use(express.urlencoded({ extended: true }));
-// Middleware om JSON bodies te parsen (voor POST requests met application/json)
 app.use(express.json());
-// Serveer statische bestanden (index.html, style.css, etc.) vanuit de `public` map
 app.use(express.static("public"));
 
-// MongoDB connectie string: kan overschreven worden met env var MONGO_URL
+// MongoDB connectie
 const MONGO_URL = process.env.MONGO_URL || "mongodb://admin:qwerty@mongo:27017";
-// Herbruikbare MongoClient instantie - let op: connect/close wordt in handlers aangeroepen
 const client = new MongoClient(MONGO_URL);
 
-//GET all users
-// Route: GET /getUsers
-// Haalt alle gebruikers op uit de `users` collectie en stuurt deze terug als JSON
+// Zod schema voor gebruikersvalidatie
+const UserSchema = z.object({
+  email: z.string().email("Ongeldig e-mailadres"),
+  username: z.string().min(2, "Gebruikersnaam moet minstens 2 karakters bevatten").max(50),
+  password: z.string().min(6, "Wachtwoord moet minstens 6 karakters bevatten"),
+});
+
+// GET all users
 app.get("/getUsers", async (_req, res) => {
-  // Maak verbinding met MongoDB
-  await client.connect();
-  console.log("Connected successfully to server");
+  try {
+    await client.connect();
+    logger.info("Verbonden met MongoDB");
 
-  // Selecteer database en collectie
-  const db = client.db("apnacollege-db");
-  // Query: alle documenten in de collectie ophalen
-  const data = await db.collection("users").find({}).toArray();
+    const db = client.db("apnacollege-db");
+    const data = await db.collection("users").find({}).toArray();
 
-  // Sluit de connectie en stuur de data terug
-  client.close();
-  res.send(data);
+    res.send(data);
+  } catch (error) {
+    logger.error({ error }, "Fout bij ophalen gebruikers");
+    res.status(500).send({ error: "Interne serverfout" });
+  } finally {
+    await client.close();
+  }
 });
 
-//POST new user
-// Route: POST /addUser
-// Ontvangt form-data (of JSON als middleware is aangepast) en voegt een nieuwe gebruiker toe aan de DB
+// POST new user
 app.post("/addUser", async (req, res) => {
-  // Het nieuwe gebruiker-object komt uit de body van de request
-  const userObj = req.body;
-  console.log(req.body);
+  try {
+    // Valideer de request body met Zod
+    const validated = UserSchema.parse(req.body);
+    logger.info({ email: validated.email, username: validated.username }, "Nieuwe gebruiker");
 
-  // Verbinden met MongoDB, selectie van database en collectie
-  await client.connect();
-  console.log("Connected successfully to server");
+    await client.connect();
+    logger.info("Verbonden met MongoDB");
 
-  const db = client.db("apnacollege-db");
-  // Insert het nieuwe document in de `users` collectie
-  const data = await db.collection("users").insertOne(userObj);
-  console.log(data);
-  console.log("data inserted in DB");
+    const db = client.db("apnacollege-db");
+    const data = await db.collection("users").insertOne(validated);
 
-  // Sluit de connectie. Er wordt geen response-body teruggestuurd in de originele code,
-  // dus we sturen hier een korte status zodat de client weet dat het gelukt is.
-  client.close();
-  res.status(201).send({ insertedId: data.insertedId });
+    logger.info({ insertedId: data.insertedId }, "Gebruiker toegevoegd");
+
+    res.status(201).send({ insertedId: data.insertedId });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      logger.warn({ issues: error.issues }, "Validatiefout");
+      res.status(400).send({ error: "Validatiefout", details: error.issues });
+      return;
+    }
+
+    logger.error({ error }, "Fout bij toevoegen gebruiker");
+    res.status(500).send({ error: "Interne serverfout" });
+  } finally {
+    await client.close();
+  }
 });
 
-// Start de Express-server
+// Start de server
 app.listen(PORT, () => {
-  console.log(`server running on port ${PORT}`);
+  logger.info(`Server draait op poort ${PORT}`);
 });
