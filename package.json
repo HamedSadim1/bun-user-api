@@ -4,10 +4,12 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "husky": "^9.1.7"
   },
   "scripts": {
-    "start": "bun run server.ts"
+    "start": "bun run server.ts",
+    "prepare": "husky"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"
