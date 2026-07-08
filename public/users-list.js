@@ -64,7 +64,7 @@ async function loadUsers() {
     }
 
     if (!usersTbody) return;
-    usersTbody.innerHTML = "";
+    usersTbody.replaceChildren();
 
     users.forEach((user, index) => {
       usersTbody.appendChild(createUserRow(user, index));
@@ -81,4 +81,9 @@ async function loadUsers() {
 
 if (refreshBtn) refreshBtn.addEventListener("click", loadUsers);
 if (retryBtn) retryBtn.addEventListener("click", loadUsers);
+
+window.addEventListener("unhandledrejection", () => {
+  showState("error");
+});
+
 loadUsers();

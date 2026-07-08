@@ -9,6 +9,10 @@ const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
+client.on("serverClosed", () => {
+  logger.error("MongoDB verbinding onverwacht gesloten");
+});
+
 export async function connectDB(): Promise<void> {
   await client.connect();
   db = client.db(DB_NAME);

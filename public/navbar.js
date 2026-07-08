@@ -7,9 +7,28 @@
   // Brand
   const brand = document.createElement("div");
   brand.className = "nav-brand";
-  brand.innerHTML =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><title>University icon</title><path d="M12 14l9-5-9-5-9 5 9 5z"/></svg>' +
-    "<span>XYZ University</span>";
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "1.5");
+  svg.setAttribute("aria-hidden", "true");
+
+  const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+  title.textContent = "University icon";
+  svg.appendChild(title);
+
+  const pathEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  pathEl.setAttribute("d", "M12 14l9-5-9-5-9 5 9 5z");
+  svg.appendChild(pathEl);
+
+  brand.appendChild(svg);
+
+  const span = document.createElement("span");
+  span.textContent = "XYZ University";
+  brand.appendChild(span);
+
   nav.appendChild(brand);
 
   // Links

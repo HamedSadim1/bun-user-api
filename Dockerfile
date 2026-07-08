@@ -23,4 +23,4 @@ COPY . .
 EXPOSE 5050
 
 # Commando om de applicatie uit te voeren met Bun
-CMD ["bun", "run", "server.ts"]
+CMD ["bun", "server.ts"]

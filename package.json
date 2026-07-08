@@ -1,6 +1,5 @@
 {
   "name": "bun-user-api",
-  "module": "index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {

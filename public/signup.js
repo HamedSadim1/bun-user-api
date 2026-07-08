@@ -1,3 +1,13 @@
+// Toast helper
+function showToast(message, type = "success") {
+  if (!toast) return;
+  toast.textContent = message;
+  toast.className = `toast toast-${type}`;
+  setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 4000);
+}
+
 const form = document.getElementById("signupForm");
 const successState = document.getElementById("successState");
 const successUsername = document.getElementById("successUsername");
@@ -45,25 +55,12 @@ if (passwordInput && strengthMeter && strengthBar && strengthText) {
     if (/[^A-Za-z0-9]/.test(val)) score++;
 
     const levels = ["Very weak", "Weak", "Fair", "Good", "Strong"];
-    const colors = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"];
-    const widths = ["20%", "40%", "60%", "80%", "100%"];
 
     const idx = Math.min(score, levels.length - 1);
     strengthText.textContent = levels[idx];
-    strengthText.style.color = colors[idx];
-    strengthBar.style.width = widths[idx];
-    strengthBar.style.background = colors[idx];
+    strengthText.dataset.strength = String(idx);
+    strengthBar.dataset.strength = String(idx);
   });
-}
-
-// Toast helper
-function showToast(message, type = "success") {
-  if (!toast) return;
-  toast.textContent = message;
-  toast.className = `toast toast-${type}`;
-  setTimeout(() => {
-    toast.classList.add("hidden");
-  }, 4000);
 }
 
 // Field validation

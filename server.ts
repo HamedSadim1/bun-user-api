@@ -29,7 +29,7 @@ app.use(
 // CORS
 app.use(
   cors({
-    origin: "*",
+    origin: process.env.CORS_ORIGIN || "*",
     methods: ["GET", "POST"],
   }),
 );
@@ -46,6 +46,11 @@ app.get("/users", (_req, res) => {
   res.sendFile(path.resolve("public/users.html"));
 });
 app.use(userRoutes);
+
+// 404 handler
+app.use((_req, res) => {
+  res.status(404).send({ error: "Route niet gevonden" });
+});
 
 // Global error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
