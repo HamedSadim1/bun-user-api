@@ -2,7 +2,7 @@ import type { Db } from "mongodb";
 import { MongoClient } from "mongodb";
 import { logger } from "./logger";
 
-const MONGO_URL = process.env.MONGO_URL || "mongodb://admin:qwerty@mongo:27017";
+const MONGO_URL = process.env.MONGO_URL || "mongodb://admin:qwerty@localhost:27017";
 const DB_NAME = "apnacollege-db";
 
 const client = new MongoClient(MONGO_URL);
