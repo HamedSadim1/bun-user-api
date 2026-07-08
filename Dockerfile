@@ -6,11 +6,12 @@ WORKDIR /docker-node
 
 # Stel omgevingsvariabelen in voor MongoDB inloggegevens
 ENV MONGO_DB_USERNAME=admin \
-    MONGO_DB_PWD=qwerty
+    MONGO_DB_PWD=qwerty \
+    NODE_ENV=production
 
-# Kopieer package.json eerst voor betere Docker layer caching
-# Dit stelt Docker in staat om dependencies te cachen als package.json niet is veranderd
-COPY package.json ./
+# Kopieer package.json en bun.lock eerst voor betere Docker layer caching
+# Dit stelt Docker in staat om dependencies te cachen als deze niet zijn veranderd
+COPY package.json bun.lock ./
 
 # Installeer dependencies met behulp van Bun
 RUN bun install
