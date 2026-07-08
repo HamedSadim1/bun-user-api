@@ -60,6 +60,7 @@ body {
     var(--shadow-xl),
     0 0 0 1px rgba(255, 255, 255, 0.1);
   animation: fadeInUp 0.6s ease-out;
+  margin-top: 3.5rem;
 }
 
 @keyframes fadeInUp {
@@ -553,7 +554,7 @@ form {
 
 /* ========== Navigation Bar ========== */
 .nav-bar {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -565,14 +566,6 @@ form {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--gray-200);
   z-index: 100;
-}
-
-.nav-bar-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  border-radius: 24px 24px 0 0;
 }
 
 .nav-brand {
@@ -619,7 +612,7 @@ form {
 .users-page {
   width: min(1100px, 95vw);
   min-height: 100vh;
-  padding-top: 5rem;
+  padding-top: 3.5rem;
 }
 
 .users-main {
