@@ -258,5 +258,3 @@ Bij elke **pull request** naar `main` draait GitHub Actions automatisch:
 
 - ✅ `bun install`
 - ✅ `tsc --noEmit` typecheck
-
----
