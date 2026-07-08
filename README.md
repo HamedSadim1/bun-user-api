@@ -260,7 +260,3 @@ Bij elke **pull request** naar `main` draait GitHub Actions automatisch:
 - ✅ `tsc --noEmit` typecheck
 
 ---
-
-## 📄 Licentie
-
-Dit project is bedoeld voor educatieve doeleinden.
