@@ -15,7 +15,7 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         "default-src": ["'self'"],
-        "script-src": ["'self'", "'sha256-r07KTs5HX38Yzm1Krb78R0dY1BBLwr49Yuor2vkybS0='"],
+        "script-src": ["'self'"],
         "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         "font-src": ["'self'", "https://fonts.gstatic.com"],
         "img-src": ["'self'", "data:"],
@@ -41,6 +41,9 @@ app.use(express.json());
 app.use(express.static(path.resolve("public")));
 
 // Routes
+app.get("/users", (_req, res) => {
+  res.sendFile(path.resolve("public/users.html"));
+});
 app.use(userRoutes);
 
 // Verbind met MongoDB en start de server
