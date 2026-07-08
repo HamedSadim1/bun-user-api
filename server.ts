@@ -10,7 +10,20 @@ const app = express();
 const PORT = 5050;
 
 // Security headers
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        "default-src": ["'self'"],
+        "script-src": ["'self'", "'sha256-r07KTs5HX38Yzm1Krb78R0dY1BBLwr49Yuor2vkybS0='"],
+        "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        "font-src": ["'self'", "https://fonts.gstatic.com"],
+        "img-src": ["'self'", "data:"],
+        "connect-src": ["'self'"],
+      },
+    },
+  }),
+);
 
 // CORS voor cross-origin requests
 app.use(
