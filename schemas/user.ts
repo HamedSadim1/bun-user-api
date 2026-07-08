@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const UserSchema = z.object({
-  email: z.string().email({ message: "Ongeldig e-mailadres" }),
+  email: z.email({ message: "Ongeldig e-mailadres" }),
   username: z
     .string()
     .min(2, { message: "Gebruikersnaam moet minstens 2 karakters bevatten" })
