@@ -8,47 +8,57 @@ const strengthMeter = document.getElementById("strength-meter");
 const strengthBar = document.getElementById("strength-bar");
 const strengthText = document.getElementById("strength-text");
 const submitBtn = document.getElementById("formBtn");
-const btnText = submitBtn.querySelector(".btn-text");
-const btnLoader = submitBtn.querySelector(".btn-loader");
 const togglePassword = document.querySelector(".toggle-password");
 const passwordInput = document.getElementById("password");
 
+if (!form || !submitBtn || !toast) {
+  throw new Error("Signup form elements not found");
+}
+
+const btnText = submitBtn.querySelector(".btn-text");
+const btnLoader = submitBtn.querySelector(".btn-loader");
+
 // Toggle password visibility
-togglePassword.addEventListener("click", () => {
-  const isPassword = passwordInput.type === "password";
-  passwordInput.type = isPassword ? "text" : "password";
-  togglePassword.classList.toggle("visible", isPassword);
-});
+if (togglePassword && passwordInput) {
+  togglePassword.addEventListener("click", () => {
+    const isPassword = passwordInput.type === "password";
+    passwordInput.type = isPassword ? "text" : "password";
+    togglePassword.classList.toggle("visible", isPassword);
+  });
+}
 
 // Password strength checker
-passwordInput.addEventListener("input", () => {
-  const val = passwordInput.value;
-  if (!val) {
-    strengthMeter.classList.add("hidden");
-    return;
-  }
-  strengthMeter.classList.remove("hidden");
+if (passwordInput && strengthMeter && strengthBar && strengthText) {
+  passwordInput.addEventListener("input", () => {
+    const val = passwordInput.value;
+    if (!val) {
+      strengthMeter.classList.add("hidden");
+      return;
+    }
+    strengthMeter.classList.remove("hidden");
 
-  let score = 0;
-  if (val.length >= 6) score++;
-  if (val.length >= 10) score++;
-  if (/[A-Z]/.test(val)) score++;
-  if (/[0-9]/.test(val)) score++;
-  if (/[^A-Za-z0-9]/.test(val)) score++;
+    let score = 0;
+    if (val.length >= 6) score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
 
-  const levels = ["Very weak", "Weak", "Fair", "Good", "Strong"];
-  const colors = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"];
-  const widths = ["20%", "40%", "60%", "80%", "100%"];
+    const levels = ["Very weak", "Weak", "Fair", "Good", "Strong"];
+    const colors = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"];
+    const widths = ["20%", "40%", "60%", "80%", "100%"];
 
-  const idx = Math.min(score, levels.length - 1);
-  strengthText.textContent = levels[idx];
-  strengthText.style.color = colors[idx];
-  strengthBar.style.width = widths[idx];
-  strengthBar.style.background = colors[idx];
-});
+    const idx = Math.min(score, levels.length - 1);
+    strengthText.textContent = levels[idx];
+    strengthText.style.color = colors[idx];
+    strengthBar.style.width = widths[idx];
+    strengthBar.style.background = colors[idx];
+  });
+}
 
 // Toast helper
 function showToast(message, type = "success") {
+  if (!toast) return;
   toast.textContent = message;
   toast.className = `toast toast-${type}`;
   setTimeout(() => {
@@ -60,6 +70,7 @@ function showToast(message, type = "success") {
 function validateField(input) {
   const errorEl = document.getElementById(`${input.id}-error`);
   const wrapper = input.closest(".input-wrapper");
+  if (!wrapper || !errorEl) return false;
   const icon = wrapper.querySelector(".validation-icon");
 
   let isValid = true;
@@ -95,12 +106,12 @@ function validateField(input) {
   if (!isValid) {
     wrapper.classList.add("invalid");
     wrapper.classList.remove("valid");
-    icon.textContent = "✕";
+    if (icon) icon.textContent = "✕";
     errorEl.textContent = message;
   } else {
     wrapper.classList.add("valid");
     wrapper.classList.remove("invalid");
-    icon.textContent = "✓";
+    if (icon) icon.textContent = "✓";
     errorEl.textContent = "";
   }
 
@@ -114,28 +125,30 @@ document.querySelectorAll("input").forEach((input) => {
   });
   input.addEventListener("input", () => {
     const wrapper = input.closest(".input-wrapper");
-    if (wrapper.classList.contains("invalid")) {
+    if (wrapper && wrapper.classList.contains("invalid")) {
       validateField(input);
     }
   });
 });
 
 // Create another account button
-createAnotherBtn.addEventListener("click", () => {
-  form.classList.remove("hidden");
-  successState.classList.add("hidden");
-  formHeader.classList.remove("hidden");
-  form.reset();
-  togglePassword.classList.remove("visible");
-  passwordInput.type = "password";
-  strengthMeter.classList.add("hidden");
-  document.querySelectorAll(".validation-icon").forEach((icon) => {
-    icon.textContent = "";
+if (createAnotherBtn && form && successState && formHeader) {
+  createAnotherBtn.addEventListener("click", () => {
+    form.classList.remove("hidden");
+    successState.classList.add("hidden");
+    formHeader.classList.remove("hidden");
+    form.reset();
+    if (togglePassword) togglePassword.classList.remove("visible");
+    if (passwordInput) passwordInput.type = "password";
+    if (strengthMeter) strengthMeter.classList.add("hidden");
+    document.querySelectorAll(".validation-icon").forEach((icon) => {
+      icon.textContent = "";
+    });
+    document.querySelectorAll(".input-wrapper").forEach((w) => {
+      w.classList.remove("valid", "invalid");
+    });
   });
-  document.querySelectorAll(".input-wrapper").forEach((w) => {
-    w.classList.remove("valid", "invalid");
-  });
-});
+}
 
 // Form submit
 form.addEventListener("submit", async (e) => {
@@ -152,8 +165,8 @@ form.addEventListener("submit", async (e) => {
   if (!allValid) return;
 
   submitBtn.disabled = true;
-  btnText.classList.add("hidden");
-  btnLoader.classList.remove("hidden");
+  if (btnText) btnText.classList.add("hidden");
+  if (btnLoader) btnLoader.classList.remove("hidden");
 
   try {
     const formData = new FormData(form);
@@ -167,11 +180,11 @@ form.addEventListener("submit", async (e) => {
 
     if (response.ok) {
       showToast("Account created successfully! 🎉", "success");
-      successUsername.textContent = data.username;
+      if (successUsername) successUsername.textContent = data.username;
       form.classList.add("hidden");
-      successState.classList.remove("hidden");
-      formHeader.classList.add("hidden");
-      strengthMeter.classList.add("hidden");
+      if (successState) successState.classList.remove("hidden");
+      if (formHeader) formHeader.classList.add("hidden");
+      if (strengthMeter) strengthMeter.classList.add("hidden");
     } else if (response.status === 400) {
       const err = await response.json();
       showToast(err.error || "Validation failed. Please check your input.", "error");
@@ -182,7 +195,7 @@ form.addEventListener("submit", async (e) => {
     showToast("Could not connect to the server.", "error");
   } finally {
     submitBtn.disabled = false;
-    btnText.classList.remove("hidden");
-    btnLoader.classList.add("hidden");
+    if (btnText) btnText.classList.remove("hidden");
+    if (btnLoader) btnLoader.classList.add("hidden");
   }
 });

@@ -5,12 +5,13 @@ import { logger } from "../lib/logger";
 import { UserSchema } from "../schemas/user";
 
 const router = Router();
+const MAX_USERS = 100;
 
 // GET all users
 router.get("/getUsers", async (_req, res) => {
   try {
     const db = getDb();
-    const data = await db.collection("users").find({}).toArray();
+    const data = await db.collection("users").find({}).limit(MAX_USERS).toArray();
     res.send(data);
   } catch (error) {
     logger.error({ error }, "Fout bij ophalen gebruikers");

@@ -8,6 +8,7 @@ const refreshBtn = document.getElementById("refreshBtn");
 const retryBtn = document.getElementById("retryBtn");
 
 function showState(state) {
+  if (!loadingState || !emptyState || !errorState || !usersTable) return;
   loadingState.classList.add("hidden");
   emptyState.classList.add("hidden");
   errorState.classList.add("hidden");
@@ -19,10 +20,29 @@ function showState(state) {
   else if (state === "table") usersTable.classList.remove("hidden");
 }
 
-function escapeHtml(text) {
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
+function createTableCell(text) {
+  const td = document.createElement("td");
+  td.textContent = text;
+  return td;
+}
+
+function createUserRow(user, index) {
+  const tr = document.createElement("tr");
+
+  const tdNum = document.createElement("td");
+  tdNum.textContent = String(index + 1);
+  tr.appendChild(tdNum);
+
+  tr.appendChild(createTableCell(user.email || "-"));
+  tr.appendChild(createTableCell(user.username || "-"));
+
+  const tdId = document.createElement("td");
+  const code = document.createElement("code");
+  code.textContent = user._id || "-";
+  tdId.appendChild(code);
+  tr.appendChild(tdId);
+
+  return tr;
 }
 
 async function loadUsers() {
@@ -43,21 +63,22 @@ async function loadUsers() {
       return;
     }
 
+    if (!usersTbody) return;
     usersTbody.innerHTML = "";
 
     users.forEach((user, index) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${index + 1}</td><td>${escapeHtml(user.email || "-")}</td><td>${escapeHtml(user.username || "-")}</td><td><code>${escapeHtml(user._id || "-")}</code></td>`;
-      usersTbody.appendChild(tr);
+      usersTbody.appendChild(createUserRow(user, index));
     });
 
-    userCount.textContent = `${users.length} user${users.length !== 1 ? "s" : ""} registered`;
+    if (userCount) {
+      userCount.textContent = `${users.length} user${users.length !== 1 ? "s" : ""} registered`;
+    }
     showState("table");
   } catch {
     showState("error");
   }
 }
 
-refreshBtn.addEventListener("click", loadUsers);
-retryBtn.addEventListener("click", loadUsers);
+if (refreshBtn) refreshBtn.addEventListener("click", loadUsers);
+if (retryBtn) retryBtn.addEventListener("click", loadUsers);
 loadUsers();
