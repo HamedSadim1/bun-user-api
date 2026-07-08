@@ -2,6 +2,7 @@ import path from "node:path";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import { closeDB, connectDB } from "./lib/database";
 import { logger } from "./lib/logger";
 import userRoutes from "./routes/users";
 
@@ -29,7 +30,23 @@ app.use(express.static(path.resolve("public")));
 // Routes
 app.use(userRoutes);
 
-// Start de server
-app.listen(PORT, () => {
-  logger.info(`Server draait op poort ${PORT}`);
-});
+// Verbind met MongoDB en start de server
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      logger.info(`Server draait op poort ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    logger.error({ error }, "Kon niet verbinden met MongoDB");
+    process.exit(1);
+  });
+
+// Graceful shutdown
+const shutdown = async () => {
+  logger.info("Server wordt afgesloten...");
+  await closeDB();
+};
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
