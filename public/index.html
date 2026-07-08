@@ -55,6 +55,20 @@
             <p>Join thousands of students already learning with us</p>
           </div>
 
+          <!-- Success state -->
+          <div id="successState" class="success-state hidden">
+            <div class="success-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <title>Success checkmark</title>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
+            <h2>Welcome, <span id="successUsername"></span>!</h2>
+            <p>Your account has been created successfully. You now have access to all course materials, academic tracking, and the student community.</p>
+            <button type="button" id="createAnotherBtn" class="submit-btn secondary">Create another account</button>
+          </div>
+
           <form id="signupForm" novalidate>
             <div class="input-group">
               <label for="email">Email address</label>
@@ -158,6 +172,10 @@
 
     <script>
       const form = document.getElementById("signupForm");
+      const successState = document.getElementById("successState");
+      const successUsername = document.getElementById("successUsername");
+      const createAnotherBtn = document.getElementById("createAnotherBtn");
+      const formHeader = document.querySelector(".form-header");
       const toast = document.getElementById("toast");
       const strengthMeter = document.getElementById("strength-meter");
       const strengthBar = document.getElementById("strength-bar");
@@ -275,6 +293,23 @@
         });
       });
 
+      // Create another account button
+      createAnotherBtn.addEventListener("click", () => {
+        form.classList.remove("hidden");
+        successState.classList.add("hidden");
+        formHeader.classList.remove("hidden");
+        form.reset();
+        togglePassword.classList.remove("visible");
+        passwordInput.type = "password";
+        strengthMeter.classList.add("hidden");
+        document.querySelectorAll(".validation-icon").forEach((icon) => {
+          icon.textContent = "";
+        });
+        document.querySelectorAll(".input-wrapper").forEach((w) => {
+          w.classList.remove("valid", "invalid");
+        });
+      });
+
       // Form submit
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -307,14 +342,12 @@
 
           if (response.ok) {
             showToast("Account created successfully! 🎉", "success");
-            form.reset();
+            // Show success state
+            successUsername.textContent = data.username;
+            form.classList.add("hidden");
+            document.getElementById("successState").classList.remove("hidden");
+            document.querySelector(".form-header").classList.add("hidden");
             strengthMeter.classList.add("hidden");
-            document.querySelectorAll(".validation-icon").forEach((icon) => {
-              icon.textContent = "";
-            });
-            document.querySelectorAll(".input-wrapper").forEach((w) => {
-              w.classList.remove("valid", "invalid");
-            });
           } else if (response.status === 400) {
             const err = await response.json();
             showToast(err.error || "Validation failed. Please check your input.", "error");
