@@ -43,6 +43,8 @@ services:
       - mongo # Zorg ervoor dat MongoDB start voor de applicatie
     networks:
       - app-network # Verbind met hetzelfde netwerk als MongoDB
+    volumes:
+      - ./public:/docker-node/public # Live reload van statische bestanden
 
 # Definieer aangepaste netwerken voor communicatie tussen containers
 networks:
