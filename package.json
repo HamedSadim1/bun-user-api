@@ -4,8 +4,11 @@
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
     "@types/bun": "latest",
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8"
   },
   "scripts": {
     "start": "bun run server.ts",
