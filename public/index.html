@@ -3,30 +3,174 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./style.css" type="text/css" />
-    <title>Home Page</title>
+    <link rel="stylesheet" href="./style.css?v=2" type="text/css" />
+    <title>XYZ University — Sign Up</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <h1>Hi student, Welcome to XYZ University!</h1>
-    <p>
-      You can sign up to the platform to access all important notes & lectures.
-    </p>
+    <div class="container">
+      <!-- Toast container -->
+      <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
-    <form action="/addUser" method="POST" target="_blank" id="signupForm">
-      <div class="field">
-        <label for="email">Email: </label>
-        <input type="text" placeholder="jane@email.com" name="email" />
-      </div>
-      <div class="field">
-        <label for="username">Username: </label>
-        <input type="text" placeholder="Jane Doe" name="username" />
-      </div>
-      <div class="field">
-        <label for="password">Password: </label>
-        <input type="password" placeholder="password" name="password" />
+      <!-- Left: Brand panel -->
+      <div class="brand-panel">
+        <div class="brand-content">
+          <div class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <title>University icon</title>
+              <path d="M12 14l9-5-9-5-9 5 9 5z" />
+              <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+            </svg>
+          </div>
+          <h1>XYZ University</h1>
+          <p class="brand-subtitle">Your gateway to knowledge and opportunity</p>
+          <div class="brand-features">
+            <div class="feature">
+              <span class="feature-icon" aria-hidden="true">📚</span>
+              <span>Access all course materials</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon" aria-hidden="true">🎓</span>
+              <span>Track your academic progress</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon" aria-hidden="true">💬</span>
+              <span>Connect with peers & faculty</span>
+            </div>
+          </div>
+        </div>
+        <div class="brand-pattern" aria-hidden="true"></div>
       </div>
 
-      <button type="submit" id="formBtn">Create Account</button>
-    </form>
+      <!-- Right: Signup form -->
+      <div class="form-panel">
+        <div class="form-wrapper">
+          <div class="form-header">
+            <h2>Create your account</h2>
+            <p>Join thousands of students already learning with us</p>
+          </div>
+
+          <!-- Success state -->
+          <div id="successState" class="success-state hidden">
+            <div class="success-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <title>Success checkmark</title>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
+            <h2>Welcome, <span id="successUsername"></span>!</h2>
+            <p>Your account has been created successfully. You now have access to all course materials, academic tracking, and the student community.</p>
+            <button type="button" id="createAnotherBtn" class="submit-btn secondary">Create another account</button>
+          </div>
+
+          <form id="signupForm" novalidate>
+            <div class="input-group">
+              <label for="email">Email address</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <title>Email icon</title>
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="jane@example.com"
+                  required
+                  autocomplete="email"
+                />
+                <span class="validation-icon" aria-hidden="true"></span>
+              </div>
+              <span class="error-message" id="email-error" role="alert"></span>
+            </div>
+
+            <div class="input-group">
+              <label for="username">Username</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <title>User icon</title>
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="Jane Doe"
+                  required
+                  minlength="2"
+                  maxlength="50"
+                  autocomplete="name"
+                />
+                <span class="validation-icon" aria-hidden="true"></span>
+              </div>
+              <span class="error-message" id="username-error" role="alert"></span>
+            </div>
+
+            <div class="input-group">
+              <label for="password">Password</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <title>Lock icon</title>
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Min. 6 characters"
+                  required
+                  minlength="6"
+                  autocomplete="new-password"
+                />
+                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                  <svg class="eye-icon eye-visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <title>Show password</title>
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <svg class="eye-icon eye-hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <title>Hide password</title>
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                </button>
+              </div>
+              <span class="error-message" id="password-error" role="alert"></span>
+            </div>
+
+            <div class="strength-meter hidden" id="strength-meter" role="status" aria-live="polite">
+              <div class="strength-bar" id="strength-bar"></div>
+              <span class="strength-text" id="strength-text"></span>
+            </div>
+
+            <button type="submit" id="formBtn" class="submit-btn">
+              <span class="btn-text">Create Account</span>
+              <span class="btn-loader hidden" aria-hidden="true">
+                <svg class="spinner" viewBox="0 0 24 24">
+                  <title>Loading</title>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" />
+                </svg>
+              </span>
+            </button>
+
+            <p class="form-footer">
+              Already have an account? <a href="/" class="signin-link">Sign in</a>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="./navbar.js"></script>
+    <script src="./signup.js"></script>
   </body>
 </html>
