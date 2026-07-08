@@ -1,6 +1,8 @@
 // Importeer Express en maak een app-instance
 import express from "express";
+
 const app = express();
+
 // MongoDB client importeren (native driver)
 import { MongoClient } from "mongodb";
 
@@ -22,7 +24,7 @@ const client = new MongoClient(MONGO_URL);
 //GET all users
 // Route: GET /getUsers
 // Haalt alle gebruikers op uit de `users` collectie en stuurt deze terug als JSON
-app.get("/getUsers", async (req, res) => {
+app.get("/getUsers", async (_req, res) => {
   // Maak verbinding met MongoDB
   await client.connect();
   console.log("Connected successfully to server");

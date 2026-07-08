@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@biomejs/biome": "^2.5.3",
     "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.2.0",
     "@types/bun": "latest",
@@ -12,7 +13,10 @@
   },
   "scripts": {
     "start": "bun run server.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "format": "bunx biome check --write .",
+    "lint": "bunx biome check .",
+    "typecheck": "bun run tsc --noEmit"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"
