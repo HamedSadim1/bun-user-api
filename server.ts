@@ -3,6 +3,7 @@ import cors from "cors";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import helmet from "helmet";
+import { buildClientScripts } from "./lib/build-client";
 import { closeDB, connectDB } from "./lib/database";
 import { logger } from "./lib/logger";
 import userRoutes from "./routes/users";
@@ -49,13 +50,13 @@ app.use(userRoutes);
 
 // 404 handler
 app.use((_req, res) => {
-  res.status(404).send({ error: "Route niet gevonden" });
+  res.status(404).send({ error: "Route not found" });
 });
 
 // Global error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   logger.error({ error: err }, "Onverwachte fout");
-  res.status(500).send({ error: "Interne serverfout" });
+  res.status(500).send({ error: "Internal server error" });
 });
 
 // Graceful shutdown
@@ -74,14 +75,15 @@ const shutdown = async () => {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
-// Connect to MongoDB and start server
-connectDB()
+// Build clientscripts, connect to MongoDB and start server
+buildClientScripts()
+  .then(() => connectDB())
   .then(() => {
     server = app.listen(PORT, () => {
       logger.info(`Server draait op poort ${PORT}`);
     });
   })
   .catch((error) => {
-    logger.error({ error }, "Kon niet verbinden met MongoDB");
+    logger.error({ error }, "Kon de server niet starten");
     process.exit(1);
   });

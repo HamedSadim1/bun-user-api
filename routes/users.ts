@@ -19,7 +19,7 @@ router.get("/getUsers", async (_req, res) => {
     res.send(data);
   } catch (error) {
     logger.error({ error }, "Fout bij ophalen gebruikers");
-    res.status(500).send({ error: "Interne serverfout" });
+    res.status(500).send({ error: "Internal server error" });
   }
 });
 
@@ -37,7 +37,7 @@ router.post("/addUser", async (req, res) => {
     });
     if (exists) {
       const field = exists.email === validated.email ? "email" : "username";
-      res.status(409).send({ error: `Een gebruiker met dit ${field} bestaat al` });
+      res.status(409).send({ error: `A user with this ${field} already exists` });
       return;
     }
 
@@ -56,12 +56,12 @@ router.post("/addUser", async (req, res) => {
   } catch (error) {
     if (error instanceof z.ZodError) {
       logger.warn({ issues: error.issues }, "Validatiefout");
-      res.status(400).send({ error: "Validatiefout", details: error.issues });
+      res.status(400).send({ error: "Validation failed", details: error.issues });
       return;
     }
 
     logger.error({ error }, "Fout bij toevoegen gebruiker");
-    res.status(500).send({ error: "Interne serverfout" });
+    res.status(500).send({ error: "Internal server error" });
   }
 });
 

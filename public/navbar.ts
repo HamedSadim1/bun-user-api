@@ -44,6 +44,7 @@
     const a = document.createElement("a");
     a.href = page.href;
     a.className = page.match ? "nav-link active" : "nav-link";
+    if (page.match) a.setAttribute("aria-current", "page");
     a.textContent = page.label;
     links.appendChild(a);
   }

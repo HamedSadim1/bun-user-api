@@ -1,0 +1,3 @@
+# Normaliseer regeleinden: alles wordt als LF in de repo opgeslagen en uitgecheckt,
+# ongeacht de core.autocrlf-instelling van de ontwikkelaar.
+* text=auto eol=lf

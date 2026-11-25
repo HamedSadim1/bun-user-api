@@ -1,25 +1,17 @@
-// Toast helper
-function showToast(message, type = "success") {
-  if (!toast) return;
-  toast.textContent = message;
-  toast.className = `toast toast-${type}`;
-  setTimeout(() => {
-    toast.classList.add("hidden");
-  }, 4000);
-}
+type ToastType = "success" | "error";
 
-const form = document.getElementById("signupForm");
+const form = document.querySelector<HTMLFormElement>("#signupForm");
 const successState = document.getElementById("successState");
 const successUsername = document.getElementById("successUsername");
-const createAnotherBtn = document.getElementById("createAnotherBtn");
-const formHeader = document.querySelector(".form-header");
+const createAnotherBtn = document.querySelector<HTMLButtonElement>("#createAnotherBtn");
+const formHeader = document.querySelector<HTMLElement>(".form-header");
 const toast = document.getElementById("toast");
 const strengthMeter = document.getElementById("strength-meter");
 const strengthBar = document.getElementById("strength-bar");
 const strengthText = document.getElementById("strength-text");
-const submitBtn = document.getElementById("formBtn");
-const togglePassword = document.querySelector(".toggle-password");
-const passwordInput = document.getElementById("password");
+const submitBtn = document.querySelector<HTMLButtonElement>("#formBtn");
+const togglePassword = document.querySelector<HTMLButtonElement>(".toggle-password");
+const passwordInput = document.querySelector<HTMLInputElement>("#password");
 
 if (!form || !submitBtn || !toast) {
   throw new Error("Signup form elements not found");
@@ -28,12 +20,24 @@ if (!form || !submitBtn || !toast) {
 const btnText = submitBtn.querySelector(".btn-text");
 const btnLoader = submitBtn.querySelector(".btn-loader");
 
+// Toast helper
+function showToast(message: string, type: ToastType = "success"): void {
+  if (!toast) return;
+  toast.textContent = message;
+  toast.className = `toast toast-${type}`;
+  setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 4000);
+}
+
 // Toggle password visibility
 if (togglePassword && passwordInput) {
   togglePassword.addEventListener("click", () => {
     const isPassword = passwordInput.type === "password";
     passwordInput.type = isPassword ? "text" : "password";
     togglePassword.classList.toggle("visible", isPassword);
+    togglePassword.setAttribute("aria-pressed", String(isPassword));
+    togglePassword.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
   });
 }
 
@@ -57,14 +61,14 @@ if (passwordInput && strengthMeter && strengthBar && strengthText) {
     const levels = ["Very weak", "Weak", "Fair", "Good", "Strong"];
 
     const idx = Math.min(score, levels.length - 1);
-    strengthText.textContent = levels[idx];
+    strengthText.textContent = levels[idx] ?? "Very weak";
     strengthText.dataset.strength = String(idx);
     strengthBar.dataset.strength = String(idx);
   });
 }
 
 // Field validation
-function validateField(input) {
+function validateField(input: HTMLInputElement): boolean {
   const errorEl = document.getElementById(`${input.id}-error`);
   const wrapper = input.closest(".input-wrapper");
   if (!wrapper || !errorEl) return false;
@@ -104,11 +108,13 @@ function validateField(input) {
     wrapper.classList.add("invalid");
     wrapper.classList.remove("valid");
     if (icon) icon.textContent = "✕";
+    input.setAttribute("aria-invalid", "true");
     errorEl.textContent = message;
   } else {
     wrapper.classList.add("valid");
     wrapper.classList.remove("invalid");
     if (icon) icon.textContent = "✓";
+    input.setAttribute("aria-invalid", "false");
     errorEl.textContent = "";
   }
 
@@ -116,34 +122,42 @@ function validateField(input) {
 }
 
 // Live validation on blur
-document.querySelectorAll("input").forEach((input) => {
+document.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
   input.addEventListener("blur", () => {
     if (input.value) validateField(input);
   });
   input.addEventListener("input", () => {
     const wrapper = input.closest(".input-wrapper");
-    if (wrapper && wrapper.classList.contains("invalid")) {
+    if (wrapper?.classList.contains("invalid")) {
       validateField(input);
     }
   });
 });
 
 // Create another account button
-if (createAnotherBtn && form && successState && formHeader) {
+if (createAnotherBtn && successState && formHeader) {
   createAnotherBtn.addEventListener("click", () => {
     form.classList.remove("hidden");
     successState.classList.add("hidden");
     formHeader.classList.remove("hidden");
     form.reset();
-    if (togglePassword) togglePassword.classList.remove("visible");
+    if (togglePassword) {
+      togglePassword.classList.remove("visible");
+      togglePassword.setAttribute("aria-pressed", "false");
+      togglePassword.setAttribute("aria-label", "Show password");
+    }
     if (passwordInput) passwordInput.type = "password";
     if (strengthMeter) strengthMeter.classList.add("hidden");
+    for (const input of form.querySelectorAll("input")) {
+      input.setAttribute("aria-invalid", "false");
+    }
     document.querySelectorAll(".validation-icon").forEach((icon) => {
       icon.textContent = "";
     });
     document.querySelectorAll(".input-wrapper").forEach((w) => {
       w.classList.remove("valid", "invalid");
     });
+    document.getElementById("email")?.focus();
   });
 }
 
@@ -151,7 +165,7 @@ if (createAnotherBtn && form && successState && formHeader) {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const inputs = form.querySelectorAll("input");
+  const inputs = form.querySelectorAll<HTMLInputElement>("input");
   let allValid = true;
   inputs.forEach((input) => {
     if (!validateField(input)) {
@@ -177,16 +191,17 @@ form.addEventListener("submit", async (e) => {
 
     if (response.ok) {
       showToast("Account created successfully! 🎉", "success");
-      if (successUsername) successUsername.textContent = data.username;
+      if (successUsername) successUsername.textContent = String(data.username ?? "");
       form.classList.add("hidden");
-      if (successState) successState.classList.remove("hidden");
+      if (successState) {
+        successState.classList.remove("hidden");
+        document.getElementById("successHeading")?.focus();
+      }
       if (formHeader) formHeader.classList.add("hidden");
       if (strengthMeter) strengthMeter.classList.add("hidden");
-    } else if (response.status === 400) {
-      const err = await response.json();
-      showToast(err.error || "Validation failed. Please check your input.", "error");
     } else {
-      showToast("Something went wrong. Please try again.", "error");
+      const err = (await response.json().catch(() => null)) as { error?: string } | null;
+      showToast(err?.error || "Something went wrong. Please try again.", "error");
     }
   } catch {
     showToast("Could not connect to the server.", "error");

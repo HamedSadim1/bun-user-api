@@ -1,13 +1,21 @@
+type User = {
+  _id?: string;
+  email?: string;
+  username?: string;
+};
+
+type ViewState = "loading" | "empty" | "error" | "table";
+
 const loadingState = document.getElementById("loadingState");
 const emptyState = document.getElementById("emptyState");
 const errorState = document.getElementById("errorState");
 const usersTable = document.getElementById("usersTable");
 const usersTbody = document.getElementById("usersTbody");
 const userCount = document.getElementById("userCount");
-const refreshBtn = document.getElementById("refreshBtn");
-const retryBtn = document.getElementById("retryBtn");
+const refreshBtn = document.querySelector<HTMLButtonElement>("#refreshBtn");
+const retryBtn = document.querySelector<HTMLButtonElement>("#retryBtn");
 
-function showState(state) {
+function showState(state: ViewState): void {
   if (!loadingState || !emptyState || !errorState || !usersTable) return;
   loadingState.classList.add("hidden");
   emptyState.classList.add("hidden");
@@ -20,13 +28,13 @@ function showState(state) {
   else if (state === "table") usersTable.classList.remove("hidden");
 }
 
-function createTableCell(text) {
+function createTableCell(text: string): HTMLTableCellElement {
   const td = document.createElement("td");
   td.textContent = text;
   return td;
 }
 
-function createUserRow(user, index) {
+function createUserRow(user: User, index: number): HTMLTableRowElement {
   const tr = document.createElement("tr");
 
   const tdNum = document.createElement("td");
@@ -45,8 +53,10 @@ function createUserRow(user, index) {
   return tr;
 }
 
-async function loadUsers() {
+async function loadUsers(): Promise<void> {
   showState("loading");
+  if (refreshBtn) refreshBtn.disabled = true;
+  if (retryBtn) retryBtn.disabled = true;
 
   try {
     const response = await fetch("/getUsers");
@@ -56,12 +66,14 @@ async function loadUsers() {
       return;
     }
 
-    const users = await response.json();
+    const payload: unknown = await response.json();
 
-    if (!users || users.length === 0) {
+    if (!Array.isArray(payload) || payload.length === 0) {
       showState("empty");
       return;
     }
+
+    const users = payload as User[];
 
     if (!usersTbody) return;
     usersTbody.replaceChildren();
@@ -76,6 +88,9 @@ async function loadUsers() {
     showState("table");
   } catch {
     showState("error");
+  } finally {
+    if (refreshBtn) refreshBtn.disabled = false;
+    if (retryBtn) retryBtn.disabled = false;
   }
 }
 

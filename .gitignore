@@ -27,6 +27,11 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .cache
 *.tsbuildinfo
 
+# gegenereerde clientscripts (bron: public/*.ts)
+/public/navbar.js
+/public/signup.js
+/public/users-list.js
+
 # IntelliJ based IDEs
 .idea
 

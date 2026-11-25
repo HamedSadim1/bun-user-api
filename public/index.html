@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./style.css?v=2" type="text/css" />
+    <link rel="stylesheet" href="./style.css?v=4" type="text/css" />
     <title>XYZ University — Sign Up</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -64,7 +64,7 @@
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
-            <h2>Welcome, <span id="successUsername"></span>!</h2>
+            <h2 id="successHeading" tabindex="-1">Welcome, <span id="successUsername"></span>!</h2>
             <p>Your account has been created successfully. You now have access to all course materials, academic tracking, and the student community.</p>
             <button type="button" id="createAnotherBtn" class="submit-btn secondary">Create another account</button>
           </div>
@@ -85,6 +85,7 @@
                   placeholder="jane@example.com"
                   required
                   autocomplete="email"
+                  aria-describedby="email-error"
                 />
                 <span class="validation-icon" aria-hidden="true"></span>
               </div>
@@ -108,6 +109,7 @@
                   minlength="2"
                   maxlength="50"
                   autocomplete="name"
+                  aria-describedby="username-error"
                 />
                 <span class="validation-icon" aria-hidden="true"></span>
               </div>
@@ -130,8 +132,15 @@
                   required
                   minlength="6"
                   autocomplete="new-password"
+                  aria-describedby="password-error"
                 />
-                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                <button
+                  type="button"
+                  class="toggle-password"
+                  aria-label="Show password"
+                  aria-pressed="false"
+                  aria-controls="password"
+                >
                   <svg class="eye-icon eye-visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <title>Show password</title>
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
