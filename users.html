@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./style.css?v=7" type="text/css" />
+    <link rel="stylesheet" href="/client/style.css" />
     <title>Users — XYZ University</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -30,11 +30,11 @@
         <!-- Loading state -->
         <div id="loadingState" class="loading-state" role="status" aria-live="polite" aria-busy="true">
           <span class="visually-hidden">Loading users…</span>
-          <div class="skeleton skeleton-row"></div>
-          <div class="skeleton skeleton-row"></div>
-          <div class="skeleton skeleton-row"></div>
-          <div class="skeleton skeleton-row"></div>
-          <div class="skeleton skeleton-row"></div>
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
         </div>
 
         <!-- Empty state -->
@@ -86,7 +86,7 @@
       </main>
     </div>
 
-    <script src="./navbar.js"></script>
-    <script src="./users-list.js"></script>
+    <script type="module" src="/client/navbar.ts"></script>
+    <script type="module" src="/client/users-list.ts"></script>
   </body>
 </html>

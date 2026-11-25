@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./style.css?v=7" type="text/css" />
+    <link rel="stylesheet" href="/client/style.css" />
     <title>XYZ University — Sign Up</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -106,7 +106,6 @@
                   name="username"
                   placeholder="Jane Doe"
                   required
-                  minlength="2"
                   maxlength="50"
                   autocomplete="name"
                   aria-describedby="username-error"
@@ -130,7 +129,6 @@
                   name="password"
                   placeholder="Min. 6 characters"
                   required
-                  minlength="6"
                   autocomplete="new-password"
                   aria-describedby="password-error"
                 />
@@ -157,7 +155,7 @@
             </div>
 
             <div class="strength-meter hidden" id="strength-meter" role="status" aria-live="polite">
-              <div class="strength-bar" id="strength-bar"></div>
+              <div class="strength-bar"></div>
               <span class="strength-text" id="strength-text"></span>
             </div>
 
@@ -175,7 +173,7 @@
       </div>
     </div>
 
-    <script src="./navbar.js"></script>
-    <script src="./signup.js"></script>
+    <script type="module" src="/client/navbar.ts"></script>
+    <script type="module" src="/client/signup.ts"></script>
   </body>
 </html>

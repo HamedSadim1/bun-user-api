@@ -8,5 +8,3 @@ export const UserSchema = z.object({
     .max(50, { message: "Username must be at most 50 characters" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
-
-export type UserInput = z.infer<typeof UserSchema>;

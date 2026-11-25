@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  typecheck:
-    name: TypeScript Type Check
+  check:
+    name: Typecheck & build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,3 +24,6 @@ jobs:
 
       - name: Run TypeScript type check
         run: bun run --bun tsc --noEmit
+
+      - name: Build frontend
+        run: bun run build

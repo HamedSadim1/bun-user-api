@@ -12,27 +12,27 @@ Een REST API voor gebruikersbeheer, gebouwd met **Bun**, **Express 5**, **MongoD
 bun-user-api/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml              # GitHub Actions CI
+│       └── ci.yml              # GitHub Actions CI (typecheck + build)
 ├── .husky/
 │   ├── pre-commit              # lint-staged + typecheck
 │   └── commit-msg              # commitlint conventionele commits
 ├── client/
 │   ├── navbar.ts               # Gedeelde navigatie
 │   ├── signup.ts               # Signup formulier + client-side validatie
+│   ├── style.css               # Styling (via Vite gebundeld)
 │   └── users-list.ts           # Gebruikersoverzicht (fetch + states)
 ├── lib/
-│   ├── build-client.ts         # Compileert client/*.ts naar public/*.js
 │   ├── database.ts             # MongoDB singleton connectie
 │   └── logger.ts               # Pino gestructureerde logging
-├── public/
-│   ├── index.html              # Signup pagina
-│   ├── users.html              # Gebruikersoverzicht
-│   └── style.css               # Styling
+├── dist/                       # Vite-build (gitignored)
+├── index.html                  # Signup pagina (Vite entry)
+├── users.html                  # Gebruikersoverzicht (Vite entry)
 ├── routes/
 │   └── users.ts                # User API routes
 ├── schemas/
 │   └── user.ts                 # Zod validatieschema
-├── server.ts                   # Express app entry point
+├── server.ts                   # Express app entry point (serveert dist/)
+├── vite.config.ts              # Vite MPA-config + dev-proxy naar de API
 ├── biome.json                  # Biome formatter/linter config
 ├── commitlint.config.js        # Commitlint config
 ├── .lintstagedrc.mjs           # Lint-staged config
@@ -102,17 +102,24 @@ docker compose -f mongodb.yaml up -d mongo
 
 Zorg dat MongoDB draait op `localhost:27017`.
 
-### 4. Start de server
+### 4. Bouw de frontend en start de server
 
 ```bash
-bun run server.ts
+bun run build   # Vite-build naar dist/
+bun start       # Express serveert dist/ op poort 5050
 ```
 
-Of via npm script:
+De server start niet zonder `dist/`; de foutmelding verwijst naar `bun run build`.
+
+**Tijdens ontwikkeling** draai je twee processen:
 
 ```bash
-bun start
+bun run dev     # Vite dev-server op http://localhost:5173 (HMR)
+bun start       # Express API op http://localhost:5050
 ```
+
+Vite proxyt `/addUser` en `/getUsers` naar poort 5050, en mapt `/users` naar
+`users.html`, zodat beide pagina's ook in dev werken.
 
 De server start op **http://localhost:5050**.
 
@@ -140,11 +147,11 @@ Het gebruikersoverzicht staat op **http://localhost:5050/users**.
 
 ### `GET /`
 
-Serveert de signup pagina (`public/index.html`).
+Serveert de signup pagina uit de Vite-build (`dist/index.html`, bron: `index.html`).
 
 ### `GET /users`
 
-Serveert het gebruikersoverzicht (`public/users.html`).
+Serveert het gebruikersoverzicht uit de Vite-build (`dist/users.html`, bron: `users.html`).
 
 ### `GET /getUsers`
 
@@ -240,17 +247,25 @@ docker compose -f mongodb.yaml up -d mongo
 | **API**           | http://localhost:5050 |
 | **Mongo Express** | http://localhost:8081 |
 
+De app-image bouwt de frontend mee (`bun run build` in de `Dockerfile`). Na een
+wijziging in `client/` of de HTML-bestanden is een herbouw nodig:
+
+```bash
+docker compose -f mongodb.yaml up -d --build app
+```
+
 ---
 
 ## 🧪 Scripts
 
-| Commando            | Beschrijving                                |
-| ------------------- | ------------------------------------------- |
-| `bun start`         | Start de server (bouwt de clientscripts)    |
-| `bun run build`     | Compileert `client/*.ts` naar `public/*.js` |
-| `bun run format`    | Formatteert alle code met Biome             |
-| `bun run lint`      | Controleert code met Biome                  |
-| `bun run typecheck` | TypeScript typecheck (`tsc --noEmit`)       |
+| Commando            | Beschrijving                               |
+| ------------------- | ------------------------------------------ |
+| `bun start`         | Start de Express-server (serveert `dist/`) |
+| `bun run dev`       | Vite dev-server met HMR en API-proxy       |
+| `bun run build`     | Bouwt de frontend naar `dist/`             |
+| `bun run format`    | Formatteert alle code met Biome            |
+| `bun run lint`      | Controleert code met Biome                 |
+| `bun run typecheck` | TypeScript typecheck (`tsc --noEmit`)      |
 
 ---
 

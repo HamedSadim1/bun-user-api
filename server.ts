@@ -3,13 +3,14 @@ import cors from "cors";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import helmet from "helmet";
-import { buildClientScripts } from "./lib/build-client";
 import { closeDB, connectDB } from "./lib/database";
 import { logger } from "./lib/logger";
 import userRoutes from "./routes/users";
 
 const app = express();
 const PORT = 5050;
+// Uitvoer van `bun run build` (Vite)
+const DIST_DIR = path.resolve("dist");
 
 // Security headers
 app.use(
@@ -39,12 +40,12 @@ app.use(
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Static files
-app.use(express.static(path.resolve("public")));
+// Static files uit de Vite-build
+app.use(express.static(DIST_DIR));
 
 // Routes
 app.get("/users", (_req, res) => {
-  res.sendFile(path.resolve("public/users.html"));
+  res.sendFile(path.join(DIST_DIR, "users.html"));
 });
 app.use(userRoutes);
 
@@ -75,15 +76,18 @@ const shutdown = async () => {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
-// Build clientscripts, connect to MongoDB and start server
-buildClientScripts()
-  .then(() => connectDB())
-  .then(() => {
-    server = app.listen(PORT, () => {
-      logger.info(`Server draait op poort ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    logger.error({ error }, "Kon de server niet starten");
+const start = async () => {
+  if (!(await Bun.file(path.join(DIST_DIR, "index.html")).exists())) {
+    logger.error("dist/ ontbreekt — draai eerst `bun run build`");
     process.exit(1);
+  }
+  await connectDB();
+  server = app.listen(PORT, () => {
+    logger.info(`Server draait op poort ${PORT}`);
   });
+};
+
+start().catch((error) => {
+  logger.error({ error }, "Kon de server niet starten");
+  process.exit(1);
+});

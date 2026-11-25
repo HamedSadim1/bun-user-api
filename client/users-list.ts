@@ -17,6 +17,8 @@ const retryBtn = document.querySelector<HTMLButtonElement>("#retryBtn");
 
 function showState(state: ViewState): void {
   if (!loadingState || !emptyState || !errorState || !usersTable) return;
+  // aria-busy volgt de echte laadtoestand in plaats van vast in de markup te staan
+  loadingState.setAttribute("aria-busy", String(state === "loading"));
   loadingState.classList.add("hidden");
   emptyState.classList.add("hidden");
   errorState.classList.add("hidden");
