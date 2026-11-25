@@ -1,6 +1,6 @@
 import path from "node:path";
 import { defineConfig } from "vite";
-import { API_ORIGIN, API_ROUTES, CANONICAL_REDIRECTS, PAGES, WEB_PORT } from "./shared/config";
+import { API_ORIGIN, API_ROUTES, CANONICAL_REDIRECTS, PAGES, WEB_PORT } from "./shared/config.ts";
 
 const CLIENT_DIR = path.resolve("client");
 

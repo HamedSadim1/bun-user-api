@@ -4,9 +4,11 @@
   const nav = document.createElement("nav");
   nav.className = "nav-bar";
 
-  // Brand
-  const brand = document.createElement("div");
+  // Brand: het woordmerk is ook de weg naar huis
+  const brand = document.createElement("a");
   brand.className = "nav-brand";
+  brand.href = "/";
+  brand.setAttribute("aria-label", "XYZ University, home");
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", "0 0 24 24");

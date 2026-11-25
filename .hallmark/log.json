@@ -1,0 +1,28 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "site",
+  "shape": "Counter",
+  "theme": "Cobalt",
+  "axes": "light/grotesk-sans/cool",
+  "hero": "Counter",
+  "nav": "edge-aligned",
+  "footer": "colophon with credit",
+  "imagery": "photographs, library 1, duotone",
+  "photos": [
+   "Statsbiblioteket reading room"
+  ],
+  "signature": "ruled claims beside a cut-corner form sheet on the cell grid",
+  "sections": [
+   "Hero (Counter)",
+   "Photo band",
+   "Footer"
+  ],
+  "dismissed": [
+   "77"
+  ],
+  "prompt": "a university signup form and a list of registered students",
+  "date": "2026-11-25"
+ }
+]

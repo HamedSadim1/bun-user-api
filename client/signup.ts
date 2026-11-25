@@ -23,6 +23,10 @@ if (!form || !submitBtn || !toast) {
 const btnText = submitBtn.querySelector(".btn-text");
 const btnLoader = submitBtn.querySelector(".btn-loader");
 
+// Het endpoint op de sheet komt uit dezelfde bron als de fetch verderop
+const endpointPath = document.querySelector<HTMLElement>(".endpoint-path");
+if (endpointPath) endpointPath.textContent = API_ROUTES.addUser;
+
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Toast helper: reset de timer, zodat een nieuwe melding niet door de vorige wordt verborgen

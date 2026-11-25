@@ -3,74 +3,79 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./style.css" />
-    <title>Users — XYZ University</title>
+    <title>Registered users at XYZ University</title>
+    <meta name="description" content="Every student account created through the signup form." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <div class="users-page">
-      <main class="users-main">
-        <div class="users-header">
+    <main class="register">
+      <div class="container">
+        <div class="register-head">
           <h1>Registered Users</h1>
-          <button type="button" id="refreshBtn" class="refresh-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <title>Refresh</title>
-              <polyline points="23 4 23 10 17 10" />
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+          <button type="button" id="refreshBtn" class="key key--quiet key--small">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path d="M20 11a8 8 0 1 0-2.3 6.3" />
+              <path d="M20 4v7h-7" />
             </svg>
             Refresh
           </button>
         </div>
 
-        <!-- Loading state -->
         <div id="loadingState" class="loading-state" role="status" aria-live="polite" aria-busy="true">
           <span class="visually-hidden">Loading users…</span>
           <div class="skeleton"></div>
           <div class="skeleton"></div>
           <div class="skeleton"></div>
           <div class="skeleton"></div>
-          <div class="skeleton"></div>
         </div>
 
-        <!-- Empty state -->
         <div id="emptyState" class="empty-state hidden" role="status">
-          <div class="empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <title>No users</title>
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-          </div>
-          <h2>No users yet</h2>
-          <p>Be the first to <a href="/">create an account</a>!</p>
+          <svg
+            class="state-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+          >
+            <circle cx="9" cy="8" r="3" />
+            <path d="M3 19a6 6 0 0 1 12 0" />
+            <path d="M18 8v6" />
+            <path d="M21 11h-6" />
+          </svg>
+          <h2 class="state-title">No users yet</h2>
+          <p>Be the first to <a href="/">create an account</a>.</p>
         </div>
 
-        <!-- Error state -->
         <div id="errorState" class="error-state hidden" role="alert">
-          <div class="error-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <title>Error</title>
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-          </div>
-          <h2>Could not load users</h2>
+          <svg
+            class="state-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7.5v5.5" />
+            <path d="M12 16.5v.5" />
+          </svg>
+          <h2 class="state-title">Could not load users</h2>
           <p>Please check your connection and try again.</p>
-          <button type="button" id="retryBtn" class="refresh-btn">Try Again</button>
+          <button type="button" id="retryBtn" class="key key--quiet key--small">Try Again</button>
         </div>
 
-        <!-- Users table -->
         <div id="usersTable" class="users-table-wrapper hidden">
           <table class="users-table">
-            <caption class="visually-hidden">Registered users</caption>
+            <caption class="visually-hidden">
+              Registered users
+            </caption>
             <thead>
               <tr>
                 <th scope="col">#</th>
@@ -83,8 +88,18 @@
           </table>
           <p id="userCount" class="user-count" aria-live="polite"></p>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
+
+    <footer class="foot">
+      <div class="container foot-grid">
+        <p class="foot-mark">XYZ University</p>
+        <nav class="foot-links" aria-label="Footer">
+          <a href="/">Sign up</a>
+          <a href="/users">Users</a>
+        </nav>
+      </div>
+    </footer>
 
     <script type="module" src="./navbar.ts"></script>
     <script type="module" src="./users-list.ts"></script>
