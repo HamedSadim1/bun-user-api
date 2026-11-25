@@ -9,12 +9,18 @@ const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
+let closing = false;
+
 client.on("serverClosed", () => {
-  logger.error("MongoDB verbinding onverwacht gesloten");
+  // Bij een gecontroleerde shutdown is dit geen fout
+  if (!closing) logger.error("MongoDB verbinding onverwacht gesloten");
 });
 
 export async function connectDB(): Promise<void> {
+  // Tijdens het verbinden mag een sluiting geen "onverwachte" fout opleveren
+  closing = true;
   await client.connect();
+  closing = false;
   db = client.db(DB_NAME);
   logger.info("Verbonden met MongoDB");
 }
@@ -27,6 +33,7 @@ export function getDb(): Db {
 }
 
 export async function closeDB(): Promise<void> {
+  closing = true;
   await client.close();
   logger.info("MongoDB verbinding gesloten");
 }

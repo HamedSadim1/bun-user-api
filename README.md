@@ -17,21 +17,22 @@ bun-user-api/
 │   ├── pre-commit              # lint-staged + typecheck
 │   └── commit-msg              # commitlint conventionele commits
 ├── client/
+│   ├── index.html              # Signup pagina (Vite entry)
+│   ├── users.html              # Gebruikersoverzicht (Vite entry)
+│   ├── style.css               # Styling (via Vite gebundeld)
 │   ├── navbar.ts               # Gedeelde navigatie
 │   ├── signup.ts               # Signup formulier + client-side validatie
-│   ├── style.css               # Styling (via Vite gebundeld)
 │   └── users-list.ts           # Gebruikersoverzicht (fetch + states)
-├── lib/
-│   ├── database.ts             # MongoDB singleton connectie
-│   └── logger.ts               # Pino gestructureerde logging
+├── server/
+│   ├── index.ts                # Express app entry point (serveert dist/)
+│   ├── lib/
+│   │   ├── database.ts         # MongoDB singleton connectie
+│   │   └── logger.ts           # Pino gestructureerde logging
+│   ├── routes/
+│   │   └── users.ts            # User API routes
+│   └── schemas/
+│       └── user.ts             # Zod validatieschema
 ├── dist/                       # Vite-build (gitignored)
-├── index.html                  # Signup pagina (Vite entry)
-├── users.html                  # Gebruikersoverzicht (Vite entry)
-├── routes/
-│   └── users.ts                # User API routes
-├── schemas/
-│   └── user.ts                 # Zod validatieschema
-├── server.ts                   # Express app entry point (serveert dist/)
 ├── vite.config.ts              # Vite MPA-config + dev-proxy naar de API
 ├── biome.json                  # Biome formatter/linter config
 ├── commitlint.config.js        # Commitlint config
@@ -52,6 +53,7 @@ bun-user-api/
 | **Runtime**          | [Bun](https://bun.sh/) 1.4                                                                                  |
 | **Framework**        | [Express 5](https://expressjs.com/) 5.3                                                                     |
 | **Taal**             | [TypeScript](https://www.typescriptlang.org/) 5.9                                                           |
+| **Bundler**          | [Vite](https://vite.dev/) 8                                                                                 |
 | **Database**         | [MongoDB](https://www.mongodb.com/) 6 (native driver)                                                       |
 | **Validatie**        | [Zod](https://zod.dev/) 4                                                                                   |
 | **Security**         | [Helmet](https://helmetjs.github.io/) 8                                                                     |
@@ -102,34 +104,66 @@ docker compose -f mongodb.yaml up -d mongo
 
 Zorg dat MongoDB draait op `localhost:27017`.
 
-### 4. Bouw de frontend en start de server
+### 4. Start de app
 
 ```bash
-bun run build   # Vite-build naar dist/
-bun start       # Express serveert dist/ op poort 5050
+bun start
 ```
 
-De server start niet zonder `dist/`; de foutmelding verwijst naar `bun run build`.
+`bun start` start beide processen in één commando: de Express-API op
+**http://localhost:5050** en de Vite-devserver op **http://localhost:5173**.
+Open voor ontwikkeling **http://localhost:5173** — daar zit HMR.
 
-**Tijdens ontwikkeling** draai je twee processen:
+Poort 5050 is een pure JSON-API: `GET /` geeft een index met de beschikbare
+endpoints, de pagina's komen van Vite op 5173. Express serveert de build uit
+`dist/` alleen als je dat expliciet aanzet met `SERVE_FRONTEND=1`.
+
+Draait er al een API op poort 5050 (bijvoorbeeld de container), dan slaat
+`bun start` de lokale API over en proxyt Vite naar die bestaande API. Wil je
+juist je eigen servercode draaien, stop de container dan eerst met
+`docker compose -f mongodb.yaml stop app`.
+
+Los draaien kan ook:
 
 ```bash
-bun run dev     # Vite dev-server op http://localhost:5173 (HMR)
-bun start       # Express API op http://localhost:5050
+bun run server  # alleen de API op 5050
+bun run dev     # alleen de Vite-devserver op 5173
 ```
 
-Vite proxyt `/addUser` en `/getUsers` naar poort 5050, en mapt `/users` naar
-`users.html`, zodat beide pagina's ook in dev werken.
+Voor een productiebuild zonder Vite:
 
-De server start op **http://localhost:5050**.
+```bash
+bun run build
+SERVE_FRONTEND=1 NODE_ENV=production bun run server  # Express serveert dist/ op 5050
+```
+
+Zonder `SERVE_FRONTEND=1` bedient Express alleen de API: `/` geeft dan JSON en
+`/users` bestaat niet.
+
+In productie (`NODE_ENV=production`) stopt de server als `dist/index.html`
+ontbreekt, met een verwijzing naar `bun run build`. In development is dat geen
+blokkade, want Vite serveert de frontend.
+
+De Vite dev-server serveert de bronnen uit `client/` met HMR; de API draait in
+het tweede proces. Vite proxyt `/addUser` en `/getUsers` naar poort 5050 en
+mapt `/users` intern naar `client/users.html`. `/users.html` is nergens de
+canonieke URL: dev en productie sturen een `301` naar `/users`.
+
+De API staat op **http://localhost:5050**, de dev-server op
+**http://localhost:5173**.
+
+> `bun start` controleert bij het opstarten of `dist/index.html` bestaat. Draai
+> daarom bij de eerste keer (en na een verse clone) één keer `bun run build`.
 
 ### 5. Open de signup pagina
 
 ```
-http://localhost:5050
+http://localhost:5173
 ```
 
-Het gebruikersoverzicht staat op **http://localhost:5050/users**.
+Het gebruikersoverzicht staat op **http://localhost:5173/users**. Dezelfde
+pagina's zijn ook op poort 5050 te bereiken; die poort serveert de gebouwde
+versie uit `dist/`.
 
 ---
 
@@ -147,11 +181,30 @@ Het gebruikersoverzicht staat op **http://localhost:5050/users**.
 
 ### `GET /`
 
-Serveert de signup pagina uit de Vite-build (`dist/index.html`, bron: `index.html`).
+Geeft een JSON-index met de naam, status en beschikbare endpoints.
+
+```json
+{
+  "name": "bun-user-api",
+  "status": "ok",
+  "endpoints": {
+    "GET /getUsers": "Gebruikers (max 100) plus het totaal",
+    "POST /addUser": "Nieuwe gebruiker toevoegen (JSON of form-encoded)"
+  }
+}
+```
+
+Met `SERVE_FRONTEND=1` serveert deze route in plaats daarvan de signup pagina
+uit de Vite-build (`dist/index.html`, bron: `client/index.html`).
 
 ### `GET /users`
 
-Serveert het gebruikersoverzicht uit de Vite-build (`dist/users.html`, bron: `users.html`).
+Serveert het gebruikersoverzicht uit de Vite-build (`dist/users.html`, bron: `client/users.html`). Dit is de canonieke URL van het overzicht. Alleen met `SERVE_FRONTEND=1`; anders komt het overzicht van Vite op poort 5173.
+
+### `GET /users.html`
+
+Verwijst permanent (`301`) naar `/users`, zodat er één canonieke URL is. Alleen
+met `SERVE_FRONTEND=1`.
 
 ### `GET /getUsers`
 
@@ -254,18 +307,26 @@ wijziging in `client/` of de HTML-bestanden is een herbouw nodig:
 docker compose -f mongodb.yaml up -d --build app
 ```
 
+Binnen Compose wijst `MONGO_URL` naar de hostnaam `mongo`. Draai je de server
+buiten Docker, gebruik dan `mongodb://admin:qwerty@localhost:27017`.
+
+De container is standaard een pure API. Wil je dat de container ook de UI
+serveert, zet dan `SERVE_FRONTEND: "1"` bij de `environment` van de app in
+`mongodb.yaml` en bouw de image opnieuw.
+
 ---
 
 ## 🧪 Scripts
 
-| Commando            | Beschrijving                               |
-| ------------------- | ------------------------------------------ |
-| `bun start`         | Start de Express-server (serveert `dist/`) |
-| `bun run dev`       | Vite dev-server met HMR en API-proxy       |
-| `bun run build`     | Bouwt de frontend naar `dist/`             |
-| `bun run format`    | Formatteert alle code met Biome            |
-| `bun run lint`      | Controleert code met Biome                 |
-| `bun run typecheck` | TypeScript typecheck (`tsc --noEmit`)      |
+| Commando            | Beschrijving                                  |
+| ------------------- | --------------------------------------------- |
+| `bun start`         | Start de API én de Vite-devserver in één keer |
+| `bun run server`    | Alleen de Express-server (serveert `dist/`)   |
+| `bun run dev`       | Vite dev-server met HMR en API-proxy          |
+| `bun run build`     | Bouwt de frontend naar `dist/`                |
+| `bun run format`    | Formatteert alle code met Biome               |
+| `bun run lint`      | Controleert code met Biome                    |
+| `bun run typecheck` | TypeScript typecheck (`tsc --noEmit`)         |
 
 ---
 
@@ -298,7 +359,7 @@ Commit berichten moeten voldoen aan de [Conventional Commits](https://www.conven
 feat: voeg gebruikersvalidatie toe
 fix: repareer MongoDB connectie timeout
 chore: update dependencies
-refactor: splits server.ts op in modules
+refactor: splits de server op in modules
 ```
 
 ### Handmatig formatteren/linten

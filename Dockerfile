@@ -28,4 +28,4 @@ ENV NODE_ENV=production
 EXPOSE 5050
 
 # Commando om de applicatie uit te voeren met Bun
-CMD ["bun", "server.ts"]
+CMD ["bun", "server/index.ts"]
