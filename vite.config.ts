@@ -1,8 +1,15 @@
 import path from "node:path";
 import { defineConfig } from "vite";
+import { API_ORIGIN, API_ROUTES, CANONICAL_REDIRECTS, PAGES, WEB_PORT } from "./shared/config";
 
-const API = "http://localhost:5050";
 const CLIENT_DIR = path.resolve("client");
+
+// Pagina-URL's die Vite in dev als HTML-bestand moet serveren; "/" doet Vite zelf
+const PAGE_FILES: Record<string, string> = Object.fromEntries(
+  Object.values(PAGES)
+    .filter((page) => page.route !== "/")
+    .map((page) => [page.route, `/${page.file}`]),
+);
 
 export default defineConfig({
   // Alle frontend-bronnen staan in client/; de build gaat naar dist/ in de root
@@ -10,37 +17,35 @@ export default defineConfig({
   publicDir: false,
   plugins: [
     {
-      // In productie doet Express dit; in dev moet /users naar users.html wijzen
-      name: "users-route",
+      // In productie regelt Express dit; in dev bootst Vite dezelfde regels na
+      name: "page-routes",
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
-          // /users.html is een intern bestand; naar buiten toe is /users canoniek
-          if (req.url === "/users.html") {
-            res.writeHead(301, { Location: "/users" });
+          const url = req.url ?? "";
+          const redirect = CANONICAL_REDIRECTS[url];
+          if (redirect) {
+            res.writeHead(301, { Location: redirect });
             res.end();
             return;
           }
-          if (req.url === "/users") req.url = "/users.html";
+          const file = PAGE_FILES[url];
+          if (file) req.url = file;
           next();
         });
       },
     },
   ],
   server: {
-    port: 5173,
-    proxy: {
-      "/addUser": API,
-      "/getUsers": API,
-    },
+    port: WEB_PORT,
+    proxy: Object.fromEntries(Object.values(API_ROUTES).map((route) => [route, API_ORIGIN])),
   },
   build: {
     outDir: path.resolve("dist"),
     emptyOutDir: true,
     rollupOptions: {
-      input: {
-        signup: path.join(CLIENT_DIR, "index.html"),
-        users: path.join(CLIENT_DIR, "users.html"),
-      },
+      input: Object.fromEntries(
+        Object.entries(PAGES).map(([name, page]) => [name, path.join(CLIENT_DIR, page.file)]),
+      ),
     },
   },
 });

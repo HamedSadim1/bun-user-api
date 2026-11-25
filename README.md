@@ -24,7 +24,7 @@ bun-user-api/
 │   ├── signup.ts               # Signup formulier + client-side validatie
 │   └── users-list.ts           # Gebruikersoverzicht (fetch + states)
 ├── server/
-│   ├── index.ts                # Express app entry point (serveert dist/)
+│   ├── index.ts                # Express app: JSON-API, optioneel dist/
 │   ├── lib/
 │   │   ├── database.ts         # MongoDB singleton connectie
 │   │   └── logger.ts           # Pino gestructureerde logging
@@ -32,6 +32,8 @@ bun-user-api/
 │   │   └── users.ts            # User API routes
 │   └── schemas/
 │       └── user.ts             # Zod validatieschema
+├── shared/
+│   └── config.ts               # Poorten, API-routes, pagina's (één bron van waarheid)
 ├── dist/                       # Vite-build (gitignored)
 ├── vite.config.ts              # Vite MPA-config + dev-proxy naar de API
 ├── biome.json                  # Biome formatter/linter config

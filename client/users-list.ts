@@ -1,3 +1,5 @@
+import { API_ROUTES } from "../shared/config";
+
 type User = {
   _id?: string;
   email?: string;
@@ -61,7 +63,7 @@ async function loadUsers(): Promise<void> {
   if (retryBtn) retryBtn.disabled = true;
 
   try {
-    const response = await fetch("/getUsers", { signal: AbortSignal.timeout(10_000) });
+    const response = await fetch(API_ROUTES.users, { signal: AbortSignal.timeout(10_000) });
 
     if (!response.ok) {
       showState("error");

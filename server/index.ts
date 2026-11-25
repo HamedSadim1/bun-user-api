@@ -3,12 +3,12 @@ import cors from "cors";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import helmet from "helmet";
+import { API_INDEX, API_PORT, CANONICAL_REDIRECTS, PAGES } from "../shared/config";
 import { closeDB, connectDB } from "./lib/database";
 import { logger } from "./lib/logger";
 import userRoutes from "./routes/users";
 
 const app = express();
-const PORT = 5050;
 // Uitvoer van `bun run build` (Vite)
 const DIST_DIR = path.resolve("dist");
 
@@ -45,16 +45,18 @@ app.use(express.json());
 const SERVES_FRONTEND = process.env.SERVE_FRONTEND === "1";
 
 if (SERVES_FRONTEND) {
-  // Eén canonieke URL: /users.html staat wel in dist/, maar verwijst permanent door
-  app.get("/users.html", (_req, res) => {
-    res.redirect(301, "/users");
-  });
+  // Oude URL's verwijzen permanent door naar de canonieke variant
+  for (const [from, to] of Object.entries(CANONICAL_REDIRECTS)) {
+    app.get(from, (_req, res) => {
+      res.redirect(301, to);
+    });
+  }
 
   // Static bestanden uit de Vite-build
   app.use(express.static(DIST_DIR));
 
-  app.get("/users", (_req, res) => {
-    res.sendFile(path.join(DIST_DIR, "users.html"));
+  app.get(PAGES.users.route, (_req, res) => {
+    res.sendFile(path.join(DIST_DIR, PAGES.users.file));
   });
 }
 
@@ -63,10 +65,9 @@ app.get("/", (_req, res) => {
   res.json({
     name: "bun-user-api",
     status: "ok",
-    endpoints: {
-      "GET /getUsers": "Gebruikers (max 100) plus het totaal",
-      "POST /addUser": "Nieuwe gebruiker toevoegen (JSON of form-encoded)",
-    },
+    endpoints: Object.fromEntries(
+      API_INDEX.map((endpoint) => [`${endpoint.method} ${endpoint.path}`, endpoint.description]),
+    ),
   });
 });
 
@@ -102,18 +103,18 @@ process.on("SIGTERM", shutdown);
 
 const start = async () => {
   // Alleen nodig als Express de frontend moet serveren
-  if (SERVES_FRONTEND && !(await Bun.file(path.join(DIST_DIR, "index.html")).exists())) {
+  if (SERVES_FRONTEND && !(await Bun.file(path.join(DIST_DIR, PAGES.signup.file)).exists())) {
     logger.error("dist/ ontbreekt — draai eerst `bun run build`");
     process.exit(1);
   }
   await connectDB();
-  server = app.listen(PORT);
+  server = app.listen(API_PORT);
   // Wacht op de bind; Bun meldt een bezette poort soms pas na 'listening'
   await new Promise<void>((resolve, reject) => {
     server?.once("error", reject);
     server?.once("listening", () => setTimeout(resolve, 25));
   });
-  logger.info(`Server draait op poort ${PORT}`);
+  logger.info(`Server draait op poort ${API_PORT}`);
   // Fouten ná een geslaagde start horen niet stil te blijven
   server.on("error", (error: Error) => {
     logger.error(`Serverfout: ${error.message}`);
@@ -123,7 +124,7 @@ const start = async () => {
 // Kort en leesbaar: de driver-dump bij een mislukte verbinding is onbruikbaar
 start().catch((error: unknown) => {
   if ((error as NodeJS.ErrnoException).code === "EADDRINUSE") {
-    logger.error(`Poort ${PORT} is al in gebruik — stop de andere server of container`);
+    logger.error(`Poort ${API_PORT} is al in gebruik — stop de andere server of container`);
   } else {
     const reason = error instanceof Error ? error.message : String(error);
     logger.error(`Kon de server niet starten: ${reason}`);

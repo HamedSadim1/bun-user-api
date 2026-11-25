@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { VALIDATION } from "../../shared/config";
 
 export const UserSchema = z.object({
-  email: z.email({ message: "Invalid email address" }),
+  email: z.email({ message: VALIDATION.email.apiInvalid }),
   username: z
     .string()
-    .min(2, { message: "Username must be at least 2 characters" })
-    .max(50, { message: "Username must be at most 50 characters" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+    .min(VALIDATION.username.min, { message: VALIDATION.username.minMessage })
+    .max(VALIDATION.username.max, { message: VALIDATION.username.maxMessage }),
+  password: z.string().min(VALIDATION.password.min, { message: VALIDATION.password.minMessage }),
 });

@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { z } from "zod";
+import { API_ROUTES, MAX_USERS } from "../../shared/config";
 import { getDb } from "../lib/database";
 import { logger } from "../lib/logger";
 import { UserSchema } from "../schemas/user";
 
 const router = Router();
-const MAX_USERS = 100;
 
 // GET all users
-router.get("/getUsers", async (_req, res) => {
+router.get(API_ROUTES.users, async (_req, res) => {
   try {
     const db = getDb();
     const collection = db.collection("users");
@@ -28,7 +28,7 @@ router.get("/getUsers", async (_req, res) => {
 });
 
 // POST new user
-router.post("/addUser", async (req, res) => {
+router.post(API_ROUTES.addUser, async (req, res) => {
   try {
     const validated = UserSchema.parse(req.body);
 

@@ -1,3 +1,5 @@
+import { API_ROUTES, VALIDATION } from "../shared/config";
+
 type ToastType = "success" | "error";
 
 const form = document.querySelector<HTMLFormElement>("#signupForm");
@@ -56,6 +58,9 @@ function setFieldState(input: HTMLInputElement, isValid: boolean, message: strin
   }
 }
 
+// De limiet uit de gedeelde regels bepaalt ook het HTML-attribuut
+if (usernameInput) usernameInput.maxLength = VALIDATION.username.max;
+
 // Toggle password visibility
 if (togglePassword && passwordInput) {
   togglePassword.addEventListener("click", () => {
@@ -103,29 +108,28 @@ function validateField(input: HTMLInputElement): boolean {
   let message = "";
 
   if (input.id === "email") {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!input.value.trim()) {
       isValid = false;
-      message = "Email is required";
-    } else if (!emailRegex.test(input.value)) {
+      message = VALIDATION.email.required;
+    } else if (!VALIDATION.email.pattern.test(input.value)) {
       isValid = false;
-      message = "Please enter a valid email address";
+      message = VALIDATION.email.invalid;
     }
   } else if (input.id === "username") {
     if (!input.value.trim()) {
       isValid = false;
-      message = "Username is required";
-    } else if (input.value.length < 2) {
+      message = VALIDATION.username.required;
+    } else if (input.value.length < VALIDATION.username.min) {
       isValid = false;
-      message = "Username must be at least 2 characters";
+      message = VALIDATION.username.minMessage;
     }
   } else if (input.id === "password") {
     if (!input.value) {
       isValid = false;
-      message = "Password is required";
-    } else if (input.value.length < 6) {
+      message = VALIDATION.password.required;
+    } else if (input.value.length < VALIDATION.password.min) {
       isValid = false;
-      message = "Password must be at least 6 characters";
+      message = VALIDATION.password.minMessage;
     }
   }
 
@@ -195,7 +199,7 @@ form.addEventListener("submit", async (e) => {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
-    const response = await fetch("/addUser", {
+    const response = await fetch(API_ROUTES.addUser, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
