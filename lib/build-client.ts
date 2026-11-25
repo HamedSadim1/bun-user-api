@@ -5,11 +5,11 @@ const CLIENT_SCRIPTS = ["navbar", "signup", "users-list"] as const;
 
 /**
  * De browser kan geen TypeScript laden, dus compileren we de clientscripts
- * uit public/*.ts naar public/*.js. De .js-bestanden zijn buildartefacten.
+ * uit client/*.ts naar public/*.js. De .js-bestanden zijn buildartefacten.
  */
 export async function buildClientScripts(): Promise<void> {
   const result = await Bun.build({
-    entrypoints: CLIENT_SCRIPTS.map((name) => path.resolve("public", `${name}.ts`)),
+    entrypoints: CLIENT_SCRIPTS.map((name) => path.resolve("client", `${name}.ts`)),
     outdir: path.resolve("public"),
     target: "browser",
     naming: "[name].js",

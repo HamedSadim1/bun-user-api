@@ -16,16 +16,17 @@ bun-user-api/
 ├── .husky/
 │   ├── pre-commit              # lint-staged + typecheck
 │   └── commit-msg              # commitlint conventionele commits
+├── client/
+│   ├── navbar.ts               # Gedeelde navigatie
+│   ├── signup.ts               # Signup formulier + client-side validatie
+│   └── users-list.ts           # Gebruikersoverzicht (fetch + states)
 ├── lib/
-│   ├── build-client.ts         # Compileert public/*.ts naar public/*.js
+│   ├── build-client.ts         # Compileert client/*.ts naar public/*.js
 │   ├── database.ts             # MongoDB singleton connectie
 │   └── logger.ts               # Pino gestructureerde logging
 ├── public/
 │   ├── index.html              # Signup pagina
 │   ├── users.html              # Gebruikersoverzicht
-│   ├── navbar.ts               # Gedeelde navigatie (bron)
-│   ├── signup.ts               # Signup formulier + client-side validatie (bron)
-│   ├── users-list.ts           # Gebruikersoverzicht (fetch + states) (bron)
 │   └── style.css               # Styling
 ├── routes/
 │   └── users.ts                # User API routes
@@ -147,7 +148,7 @@ Serveert het gebruikersoverzicht (`public/users.html`).
 
 ### `GET /getUsers`
 
-Haalt alle gebruikers op (maximaal 100). Het `password`-veld wordt nooit teruggegeven.
+Haalt gebruikers op (maximaal 100) plus het totaal aantal gebruikers, zodat de UI kan tonen hoeveel er van het totaal zichtbaar is. Het `password`-veld wordt nooit teruggegeven.
 
 ```bash
 curl http://localhost:5050/getUsers
@@ -156,13 +157,17 @@ curl http://localhost:5050/getUsers
 **Respons** `200 OK`:
 
 ```json
-[
-  {
-    "_id": "64a1b2c3...",
-    "email": "jane@example.com",
-    "username": "Jane"
-  }
-]
+{
+  "users": [
+    {
+      "_id": "64a1b2c3...",
+      "email": "jane@example.com",
+      "username": "Jane"
+    }
+  ],
+  "total": 1,
+  "limit": 100
+}
 ```
 
 ---
@@ -213,7 +218,7 @@ curl -X POST http://localhost:5050/addUser \
 **Duplicaat** `409 Conflict`:
 
 ```json
-{ "error": "A user with this email already exists" }
+{ "error": "A user with this email already exists", "field": "email" }
 ```
 
 ---
@@ -242,7 +247,7 @@ docker compose -f mongodb.yaml up -d mongo
 | Commando            | Beschrijving                                |
 | ------------------- | ------------------------------------------- |
 | `bun start`         | Start de server (bouwt de clientscripts)    |
-| `bun run build`     | Compileert `public/*.ts` naar `public/*.js` |
+| `bun run build`     | Compileert `client/*.ts` naar `public/*.js` |
 | `bun run format`    | Formatteert alle code met Biome             |
 | `bun run lint`      | Controleert code met Biome                  |
 | `bun run typecheck` | TypeScript typecheck (`tsc --noEmit`)       |

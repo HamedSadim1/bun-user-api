@@ -11,12 +11,16 @@ const MAX_USERS = 100;
 router.get("/getUsers", async (_req, res) => {
   try {
     const db = getDb();
-    const data = await db
-      .collection("users")
-      .find({}, { projection: { password: 0 } })
-      .limit(MAX_USERS)
-      .toArray();
-    res.send(data);
+    const collection = db.collection("users");
+    // Het totaal maakt de MAX_USERS-limiet zichtbaar voor de client
+    const [users, total] = await Promise.all([
+      collection
+        .find({}, { projection: { password: 0 } })
+        .limit(MAX_USERS)
+        .toArray(),
+      collection.countDocuments(),
+    ]);
+    res.send({ users, total, limit: MAX_USERS });
   } catch (error) {
     logger.error({ error }, "Fout bij ophalen gebruikers");
     res.status(500).send({ error: "Internal server error" });
@@ -37,7 +41,7 @@ router.post("/addUser", async (req, res) => {
     });
     if (exists) {
       const field = exists.email === validated.email ? "email" : "username";
-      res.status(409).send({ error: `A user with this ${field} already exists` });
+      res.status(409).send({ error: `A user with this ${field} already exists`, field });
       return;
     }
 

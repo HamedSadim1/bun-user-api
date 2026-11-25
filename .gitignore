@@ -27,7 +27,10 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .cache
 *.tsbuildinfo
 
-# gegenereerde clientscripts (bron: public/*.ts)
+# tijdelijke Chrome-profielen voor lokale browserchecks
+.verify-prof*
+
+# gegenereerde clientscripts (bron: client/*.ts)
 /public/navbar.js
 /public/signup.js
 /public/users-list.js
